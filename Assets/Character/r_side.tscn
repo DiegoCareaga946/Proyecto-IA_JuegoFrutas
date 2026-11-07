@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://s38e3kocyu6f"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wbwmu"]
+size = Vector2(43.699997, 64.799995)
+
+[node name="R_Side" type="Node2D" unique_id=758553427]
+
+[node name="r_side" type="Area2D" parent="." unique_id=1517591987]
+unique_name_in_owner = true
+scale = Vector2(10, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="r_side" unique_id=718677045]
+position = Vector2(35.899998, -0.1)
+scale = Vector2(0.99999994, 0.99999994)
+shape = SubResource("RectangleShape2D_wbwmu")

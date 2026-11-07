@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://vfa242hxta8s"]
+
+[ext_resource type="PackedScene" uid="uid://cav7wef5a83qq" path="res://Assets/Character/character_body_2d.tscn" id="1_23sli"]
+[ext_resource type="Texture2D" uid="uid://bfveu210khi4e" path="res://icon.svg" id="2_jldwd"]
+[ext_resource type="PackedScene" uid="uid://carhu4ejvgmxb" path="res://Assets/Character/l_side.tscn" id="3_23sli"]
+[ext_resource type="PackedScene" uid="uid://s38e3kocyu6f" path="res://Assets/Character/r_side.tscn" id="4_y0n1t"]
+
+[sub_resource type="GDScript" id="GDScript_d8v2s"]
+script/source = "extends Node2D
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y0n1t"]
+size = Vector2(636, 121)
+
+[node name="Scene1" type="Node2D" unique_id=1866282351]
+script = SubResource("GDScript_d8v2s")
+
+[node name="CharacterBody2D" parent="." unique_id=1483226975 instance=ExtResource("1_23sli")]
+
+[node name="Platform" type="Node2D" parent="." unique_id=213580041]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Platform" unique_id=366975493]
+
+[node name="Sprite2D" type="Sprite2D" parent="Platform/StaticBody2D" unique_id=2125108852]
+position = Vector2(140, 97)
+scale = Vector2(5.2812495, 1)
+texture = ExtResource("2_jldwd")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platform/StaticBody2D" unique_id=469896105]
+position = Vector2(141, 94.5)
+shape = SubResource("RectangleShape2D_y0n1t")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1570804045]
+
+[node name="L_Side" parent="." unique_id=170685024 instance=ExtResource("3_23sli")]
+
+[node name="R_Side" parent="." unique_id=758553427 instance=ExtResource("4_y0n1t")]
