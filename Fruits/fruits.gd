@@ -1,0 +1,98 @@
+@tool
+extends Area2D
+## Fruta genérica. Se dibuja con formas (sin texturas) y cae hacia abajo.
+## Para usar arte propio: agrega un Sprite2D como hijo y borra _draw().
+
+signal collected(points: int)
+
+@export var fruit_color: Color = Color("e63946"):
+	set(value):
+		fruit_color = value
+		queue_redraw()
+
+@export var radius: float = 24.0:
+	set(value):
+		radius = value
+		queue_redraw()
+
+@export var points: int = 10
+@export var fall_speed: float = 180.0
+@export var has_leaf: bool = true:
+	set(value):
+		has_leaf = value
+		queue_redraw()
+
+## Altura a partir de la cual la fruta se borra. La asigna el spawner según la cámara.
+var despawn_y: float = INF
+
+
+func _ready() -> void:
+	if Engine.is_editor_hint():
+		queue_redraw()
+		return
+
+	add_to_group("fruits")
+	_fit_collision()
+
+	if despawn_y == INF:
+		despawn_y = _camera_bottom() + radius * 2.0
+
+	body_entered.connect(_on_body_entered)
+	queue_redraw()
+
+
+func _process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+
+	position.y += fall_speed * delta
+	if position.y > despawn_y:
+		queue_free()
+
+
+## Ajusta el radio del CollisionShape2D al radio visual.
+func _fit_collision() -> void:
+	var shape := $CollisionShape2D.shape as CircleShape2D
+	if shape == null:
+		return
+	shape = shape.duplicate()
+	$CollisionShape2D.shape = shape
+	shape.radius = radius
+
+
+func _camera_bottom() -> float:
+	var camera := get_viewport().get_camera_2d()
+	if camera == null:
+		return get_viewport_rect().size.y
+	return camera.get_screen_center_position().y + get_viewport_rect().size.y / camera.zoom.y * 0.5
+
+
+func _draw() -> void:
+	# Cuerpo
+	draw_circle(Vector2.ZERO, radius, fruit_color)
+	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 32, fruit_color.darkened(0.35), 3.0, true)
+
+	# Brillo
+	draw_circle(Vector2(-radius * 0.35, -radius * 0.35), radius * 0.18,
+			Color(1, 1, 1, 0.45))
+
+	# Tallo
+	draw_line(Vector2(0, -radius), Vector2(0, -radius * 1.45),
+			Color("5b3a1e"), 4.0, true)
+
+	# Hoja
+	if has_leaf:
+		draw_circle(Vector2(radius * 0.35, -radius * 1.3), radius * 0.28, Color("2e8b57"))
+
+
+func _on_body_entered(body: Node2D) -> void:
+	if not body.is_in_group("player"):
+		return
+
+	collected.emit(points)
+
+	var hud := get_tree().get_first_node_in_group("hud")
+	if hud and hud.has_method("add_score"):
+		hud.add_score(points)
+
+	queue_free()

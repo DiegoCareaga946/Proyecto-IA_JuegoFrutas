@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://bppjur6qxwt0s"]
+
+[ext_resource type="Script" uid="uid://cojj4sd6h8jdu" path="res://Assets/Scripts/CameraHUD.gd" id="1_hud"]
+
+[node name="CameraHUD" type="CanvasLayer" unique_id=165785900]
+layer = 10
+script = ExtResource("1_hud")
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=2135765985]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -190.0
+offset_top = -282.0
+offset_right = 190.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Margen" type="MarginContainer" parent="Panel" unique_id=474464034]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margen" unique_id=415505678]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Video" type="TextureRect" parent="Panel/Margen/VBox" unique_id=1358055450]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 194)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Estado" type="Label" parent="Panel/Margen/VBox" unique_id=1555575910]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Esperando cámara..."
+horizontal_alignment = 1
+
+[node name="Variables" type="Label" parent="Panel/Margen/VBox" unique_id=1082593680]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "lado: —   palma_x: —   fps: —   res: —"
+horizontal_alignment = 1

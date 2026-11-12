@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cpye4ywfgcxe4"]
+
+[ext_resource type="Script" path="res://Fruits/fruits.gd" id="1_fruits"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fruit"]
+radius = 24.0
+
+[node name="Fruit" type="Area2D" unique_id=757235397]
+script = ExtResource("1_fruits")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1131945947]
+shape = SubResource("CircleShape2D_fruit")

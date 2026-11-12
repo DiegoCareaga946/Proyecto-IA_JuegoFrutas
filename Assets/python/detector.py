@@ -1,6 +1,8 @@
 """Captura de cámara y detección de manos para enviar controles a Godot."""
 from pathlib import Path
+import json
 import socket
+import struct
 import time
 
 import cv2
@@ -10,7 +12,18 @@ from mediapipe.tasks.python import vision
 
 
 MODEL_FILE = Path(__file__).resolve().with_name("hand_landmarker.task")
+
+# Controles: "izquierda" / "derecha" / "centro" (lo escucha Mouse.gd).
 DESTINO = ("127.0.0.1", 4242)
+
+# Video para el HUD del juego (lo escucha CameraHUD.gd).
+DESTINO_VIDEO = ("127.0.0.1", 4243)
+CABECERA_FRAME = struct.Struct("<3sIHH")  # "FRM" + seq + trozo + total
+CABECERA_META = b"MTA"
+TROZO_MAX = 60000
+FPS_VIDEO = 20
+ANCHO_VIDEO = 320
+CALIDAD_JPEG = 60
 
 
 def dibujar_deteccion(frame, detection_result):
@@ -48,11 +61,13 @@ class MiCamara:
             raise FileNotFoundError(f"No se encontró el modelo: {MODEL_FILE}")
 
         self.udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.udp_video = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.cap = cv2.VideoCapture(indice)
 
         if not self.cap.isOpened():
             self.cap.release()
             self.udp.close()
+            self.udp_video.close()
             raise RuntimeError("No se pudo abrir la cámara.")
 
         base_options = python.BaseOptions(model_asset_path=str(MODEL_FILE))
@@ -65,6 +80,10 @@ class MiCamara:
         )
         self.landmarker = vision.HandLandmarker.create_from_options(options)
         self.ultimo_timestamp = -1
+
+        self.seq = 0
+        self.tiempo_ultimo_video = 0.0
+        self.fps_video = 0.0
 
     def obtener_fotograma(self):
         """Retorna (éxito, fotograma BGR) y envía el control a Godot."""
@@ -85,7 +104,11 @@ class MiCamara:
 
         resultado = self.landmarker.detect_for_video(imagen, timestamp)
 
-        if resultado.hand_landmarks:
+        mano = bool(resultado.hand_landmarks)
+        lado = "centro"
+        palma_x = 0.0
+
+        if mano:
             puntos = resultado.hand_landmarks[0]
             palma_x = sum(puntos[i].x for i in (0, 5, 9, 13, 17)) / 5
 
@@ -95,15 +118,68 @@ class MiCamara:
                 lado = "derecha"
             else:
                 lado = "centro"
-        else:
-            lado = "centro"
 
         self.udp.sendto(lado.encode("utf-8"), DESTINO)
 
-        return True, dibujar_deteccion(frame, resultado)
+        frame = dibujar_deteccion(frame, resultado)
+        self._enviar_video(frame, mano, lado, palma_x)
+
+        return True, frame
+
+    def _enviar_video(self, frame, mano, lado, palma_x):
+        """Envía metadatos y el fotograma en JPEG por UDP, limitado a FPS_VIDEO."""
+        ahora = time.monotonic()
+        if self.tiempo_ultimo_video > 0.0:
+            intervalo = ahora - self.tiempo_ultimo_video
+            if intervalo < 1.0 / FPS_VIDEO:
+                return
+            fps_actual = 1.0 / intervalo
+            self.fps_video = (
+                fps_actual
+                if self.fps_video == 0.0
+                else self.fps_video * 0.9 + fps_actual * 0.1
+            )
+        self.tiempo_ultimo_video = ahora
+
+        alto, ancho = frame.shape[:2]
+        if ancho > ANCHO_VIDEO:
+            escala = ANCHO_VIDEO / ancho
+            frame = cv2.resize(frame, (ANCHO_VIDEO, int(alto * escala)))
+
+        alto, ancho = frame.shape[:2]
+        meta = {
+            "mano": mano,
+            "lado": lado,
+            "palma_x": round(palma_x, 3),
+            "fps": round(self.fps_video, 1),
+            "ancho": ancho,
+            "alto": alto,
+        }
+        self.udp_video.sendto(
+            CABECERA_META + json.dumps(meta).encode("utf-8"),
+            DESTINO_VIDEO,
+        )
+
+        ok, buffer = cv2.imencode(
+            ".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), CALIDAD_JPEG]
+        )
+        if not ok:
+            return
+
+        datos = buffer.tobytes()
+        self.seq = (self.seq + 1) & 0xFFFFFFFF
+        total = (len(datos) + TROZO_MAX - 1) // TROZO_MAX
+
+        for i in range(total):
+            cabecera = CABECERA_FRAME.pack(b"FRM", self.seq, i, total)
+            inicio = i * TROZO_MAX
+            self.udp_video.sendto(
+                cabecera + datos[inicio : inicio + TROZO_MAX],
+                DESTINO_VIDEO,
+            )
 
     def liberar(self):
-        """Libera la cámara, el detector y el socket UDP."""
+        """Libera la cámara, el detector y los sockets UDP."""
         if self.cap is not None:
             self.cap.release()
             self.cap = None
@@ -115,6 +191,10 @@ class MiCamara:
         if self.udp is not None:
             self.udp.close()
             self.udp = None
+
+        if self.udp_video is not None:
+            self.udp_video.close()
+            self.udp_video = None
 
 
 # Este bloque está fuera de la clase MiCamara.
