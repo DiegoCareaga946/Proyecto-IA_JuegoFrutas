@@ -1,16 +1,16 @@
 [gd_scene format=3 uid="uid://cav7wef5a83qq"]
 
-[ext_resource type="Script" uid="uid://bxgarpxdblwri" path="res://Assets/Scripts/Mouse.gd" id="1_fx1j0"]
+[ext_resource type="Script" uid="uid://bxgarpxdblwri" path="res://Assets/Scripts/Character.gd" id="1_fx1j0"]
 [ext_resource type="Texture2D" uid="uid://bfveu210khi4e" path="res://icon.svg" id="2_bsbpi"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_23sli"]
 size = Vector2(44, 46)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fx1j0"]
-size = Vector2(43.699997, 64.799995)
+size = Vector2(57.6, 64.799995)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bsbpi"]
-size = Vector2(43.699997, 64.799995)
+size = Vector2(57.75, 64.799995)
 
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=1483226975 node_paths=PackedStringArray("extremo_izquierdo", "extremo_derecho")]
 script = ExtResource("1_fx1j0")
@@ -30,8 +30,8 @@ unique_name_in_owner = true
 scale = Vector2(10, 10)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="l_side" unique_id=667070932]
-position = Vector2(-35.749996, 0)
-scale = Vector2(0.99999994, 0.99999994)
+position = Vector2(-28.799992, 0)
+scale = Vector2(0.9999998, 0.9999998)
 shape = SubResource("RectangleShape2D_fx1j0")
 
 [node name="r_side" type="Area2D" parent="." unique_id=1250908967]
@@ -39,6 +39,6 @@ unique_name_in_owner = true
 scale = Vector2(10, 10)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="r_side" unique_id=447949707]
-position = Vector2(35.899998, -0.1)
-scale = Vector2(0.99999994, 0.99999994)
+position = Vector2(28.874992, -0.09999999)
+scale = Vector2(0.9999998, 0.9999998)
 shape = SubResource("RectangleShape2D_bsbpi")

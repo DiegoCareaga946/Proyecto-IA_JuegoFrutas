@@ -90,9 +90,6 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 
 	collected.emit(points)
-
-	var hud := get_tree().get_first_node_in_group("hud")
-	if hud and hud.has_method("add_score"):
-		hud.add_score(points)
+	Game.add_score(points)
 
 	queue_free()

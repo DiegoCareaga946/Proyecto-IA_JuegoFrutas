@@ -4,8 +4,9 @@
 [ext_resource type="Texture2D" uid="uid://bfveu210khi4e" path="res://icon.svg" id="2_jldwd"]
 [ext_resource type="PackedScene" uid="uid://carhu4ejvgmxb" path="res://Assets/Character/l_side.tscn" id="3_23sli"]
 [ext_resource type="PackedScene" uid="uid://s38e3kocyu6f" path="res://Assets/Character/r_side.tscn" id="4_y0n1t"]
+[ext_resource type="PackedScene" uid="uid://cctxuhgbho740" path="res://Assets/Scene/Game_HUD.tscn" id="5_4d5l4"]
 [ext_resource type="PackedScene" uid="uid://7ywg4gog258x" path="res://Assets/Scene/fruit_spawner.tscn" id="5_spawner"]
-[ext_resource type="PackedScene" path="res://Assets/Scene/CameraHUD.tscn" id="6_hud"]
+[ext_resource type="PackedScene" uid="uid://bppjur6qxwt0s" path="res://Assets/Scene/CameraHUD.tscn" id="6_hud"]
 
 [sub_resource type="GDScript" id="GDScript_d8v2s"]
 script/source = "extends Node2D
@@ -27,7 +28,7 @@ size = Vector2(636, 121)
 [node name="Scene1" type="Node2D" unique_id=1866282351]
 script = SubResource("GDScript_d8v2s")
 
-[node name="CharacterBody2D" parent="." groups=["player"] unique_id=1483226975 instance=ExtResource("1_23sli")]
+[node name="CharacterBody2D" parent="." unique_id=1483226975 groups=["player"] instance=ExtResource("1_23sli")]
 
 [node name="Platform" type="Node2D" parent="." unique_id=213580041]
 
@@ -42,9 +43,11 @@ texture = ExtResource("2_jldwd")
 position = Vector2(141, 94.5)
 shape = SubResource("RectangleShape2D_y0n1t")
 
-[node name="FruitSpawner" parent="." instance=ExtResource("5_spawner")]
+[node name="FruitSpawner" parent="." unique_id=835459315 instance=ExtResource("5_spawner")]
 
-[node name="CameraHUD" parent="." instance=ExtResource("6_hud")]
+[node name="CameraHUD" parent="." unique_id=779586785 instance=ExtResource("6_hud")]
+
+[node name="Game_HUD" parent="." unique_id=1423445298 instance=ExtResource("5_4d5l4")]
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1570804045]
 

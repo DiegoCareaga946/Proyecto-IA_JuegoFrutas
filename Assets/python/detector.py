@@ -112,14 +112,7 @@ class MiCamara:
             puntos = resultado.hand_landmarks[0]
             palma_x = sum(puntos[i].x for i in (0, 5, 9, 13, 17)) / 5
 
-            if palma_x < 0.45:
-                lado = "izquierda"
-            elif palma_x > 0.55:
-                lado = "derecha"
-            else:
-                lado = "centro"
-
-        self.udp.sendto(lado.encode("utf-8"), DESTINO)
+        self.udp.sendto(str(palma_x).encode("utf-8"), DESTINO)
 
         frame = dibujar_deteccion(frame, resultado)
         self._enviar_video(frame, mano, lado, palma_x)
