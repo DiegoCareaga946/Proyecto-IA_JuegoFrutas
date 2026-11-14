@@ -4,6 +4,7 @@ extends Area2D
 ## Para usar arte propio: agrega un Sprite2D como hijo y borra _draw().
 
 signal collected(points: int)
+signal combo(fruta_recolectada: int)
 
 @export var fruit_color: Color = Color("e63946"):
 	set(value):
@@ -17,6 +18,7 @@ signal collected(points: int)
 
 @export var points: int = 10
 @export var fall_speed: float = 180.0
+@export var fruta_recolectada: int = 1
 @export var has_leaf: bool = true:
 	set(value):
 		has_leaf = value
@@ -88,7 +90,7 @@ func _draw() -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-
+	combo.emit(fruta_recolectada)
 	collected.emit(points)
 	Game.add_score(points)
 

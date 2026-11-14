@@ -3,6 +3,8 @@ extends CharacterBody2D
 ## Movimiento horizontal continuo por posición de la mano (UDP 4242).
 ## El detector manda la X de la palma normalizada (0..1) o "0.0" si no ve mano.
 
+signal reset_run
+
 @export_group("Control")
 @export var velocidad_max: float = 520.0     # px/s (plan: 420-520)
 @export var suavizado: float = 12.0          # 1/s (plan: ~12)
@@ -24,6 +26,7 @@ var _raton_previo: float = 0.0
 var _raton_activo: bool = false
 
 @onready var _colision: CollisionShape2D = $CollisionShape2D
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
 func _ready() -> void:
@@ -31,10 +34,9 @@ func _ready() -> void:
 	if error != OK:
 		push_error("No se pudo abrir el UDP 4242: %s" % error_string(error))
 
-
 func _physics_process(delta: float) -> void:
 	_leer_paquetes()
-
+	
 	# El mouse solo toma el control cuando se mueve de verdad.
 	var raton_x := get_global_mouse_position().x
 	if absf(raton_x - _raton_previo) > 0.5:
@@ -53,9 +55,11 @@ func _physics_process(delta: float) -> void:
 		destino_x = clampf(raton_x, limites.x, limites.y)
 	else:
 		hay_destino = false
+		animated_sprite.play("idle")
 
 	if hay_destino:
 		var fraccion := 1.0 - exp(-suavizado * delta)   # sin sobrepaso, independiente de los fps
+		animated_sprite.play("walk")
 		velocity.x = clampf(
 			(destino_x - global_position.x) * fraccion / delta,
 			-velocidad_max, velocidad_max
@@ -103,6 +107,10 @@ func _mitad_ancho() -> float:
 		return (forma as RectangleShape2D).size.x * 0.5 * absf(scale.x)
 	return 0.0
 
-
+func reiniciar_juego(event: InputEvent) -> void:
+	if event is InputEvent and event.is_pressed() and not event.is_echo():
+		if event.keycode == KEY_SPACE:
+			reset_run.emit()
+			
 func _exit_tree() -> void:
 	udp.close()

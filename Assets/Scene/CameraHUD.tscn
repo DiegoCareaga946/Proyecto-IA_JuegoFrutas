@@ -7,20 +7,16 @@ layer = 10
 script = ExtResource("1_hud")
 
 [node name="Panel" type="PanelContainer" parent="." unique_id=2135765985]
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -190.0
-offset_top = -282.0
-offset_right = 190.0
-offset_bottom = -16.0
-grow_horizontal = 2
-grow_vertical = 0
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_bottom = 198.0
+grow_horizontal = 0
 mouse_filter = 2
 
 [node name="Margen" type="MarginContainer" parent="Panel" unique_id=474464034]
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 8
@@ -29,13 +25,14 @@ theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
 [node name="VBox" type="VBoxContainer" parent="Panel/Margen" unique_id=415505678]
+custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
 [node name="Video" type="TextureRect" parent="Panel/Margen/VBox" unique_id=1358055450]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 194)
+custom_minimum_size = Vector2(0, 130)
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
@@ -44,6 +41,7 @@ stretch_mode = 5
 [node name="Estado" type="Label" parent="Panel/Margen/VBox" unique_id=1555575910]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
 text = "Esperando cámara..."
 horizontal_alignment = 1
 

@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://7ywg4gog258x"]
+[gd_scene format=3 uid="uid://7ywg4gog258x"]
 
-[ext_resource type="Script" path="res://Assets/Scripts/FruitSpawner.gd" id="1_spawner"]
+[ext_resource type="Script" uid="uid://5c3ugs0f0c58" path="res://Assets/Scripts/FruitSpawner.gd" id="1_spawner"]
 
 [node name="FruitSpawner" type="Node2D" unique_id=1573065059]
 script = ExtResource("1_spawner")

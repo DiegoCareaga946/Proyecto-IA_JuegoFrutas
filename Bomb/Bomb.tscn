@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://cq2mlsoxk6pjr"]
+
+[ext_resource type="Script" uid="uid://4a265disv3t0" path="res://Bomb/bomb.gd" id="1_vlo8u"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_75bcl"]
+
+[node name="Area2D" type="Area2D" unique_id=597628576]
+script = ExtResource("1_vlo8u")
+bomb_color = Color(0.38665447, 0.39707172, 0.41293192, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1984987276]
+shape = SubResource("CircleShape2D_75bcl")

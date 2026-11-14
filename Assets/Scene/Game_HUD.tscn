@@ -1,19 +1,21 @@
-[gd_scene load_steps=2 format=3 uid="uid://cctxuhgbho740"]
+[gd_scene format=3 uid="uid://cctxuhgbho740"]
 
 [ext_resource type="Script" uid="uid://bk56w6xfotdaw" path="res://Assets/Scripts/Game_HUD.gd" id="1_gna7f"]
 
-[node name="GameHUD" type="CanvasLayer"]
+[node name="GameHUD" type="CanvasLayer" unique_id=1890145728]
 layer = 10
 script = ExtResource("1_gna7f")
+color_lleno = null
+color_vacio = null
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="Panel" type="PanelContainer" parent="." unique_id=493394729]
 offset_left = 16.0
 offset_top = 16.0
 offset_right = 276.0
-offset_bottom = 116.0
+offset_bottom = 140.0
 mouse_filter = 2
 
-[node name="Margen" type="MarginContainer" parent="Panel"]
+[node name="Margen" type="MarginContainer" parent="Panel" unique_id=1731324003]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 14
@@ -21,38 +23,44 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 8
 
-[node name="VBox" type="VBoxContainer" parent="Panel/Margen"]
+[node name="VBox" type="VBoxContainer" parent="Panel/Margen" unique_id=130206481]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 8
 
-[node name="Puntos" type="Label" parent="Panel/Margen/VBox"]
+[node name="Puntos" type="Label" parent="Panel/Margen/VBox" unique_id=782770655]
 unique_name_in_owner = true
 layout_mode = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 24
 text = "PUNTOS  000000"
 
-[node name="Corazones" type="HBoxContainer" parent="Panel/Margen/VBox"]
+[node name="Tiempo" type="Label" parent="Panel/Margen/VBox" unique_id=1746000252]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "TIEMPO  00:00"
+
+[node name="Combo" type="Label" parent="Panel/Margen/VBox" unique_id=1147333430]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Corazones" type="HBoxContainer" parent="Panel/Margen/VBox" unique_id=340351674]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="Corazon1" type="ColorRect" parent="Panel/Margen/VBox/Corazones"]
+[node name="Corazon1" type="ColorRect" parent="Panel/Margen/VBox/Corazones" unique_id=435135075]
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 mouse_filter = 2
-color = Color(1, 1, 1, 1)
 
-[node name="Corazon2" type="ColorRect" parent="Panel/Margen/VBox/Corazones"]
+[node name="Corazon2" type="ColorRect" parent="Panel/Margen/VBox/Corazones" unique_id=1719799482]
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 mouse_filter = 2
-color = Color(1, 1, 1, 1)
 
-[node name="Corazon3" type="ColorRect" parent="Panel/Margen/VBox/Corazones"]
+[node name="Corazon3" type="ColorRect" parent="Panel/Margen/VBox/Corazones" unique_id=261780068]
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 mouse_filter = 2
-color = Color(1, 1, 1, 1)

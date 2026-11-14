@@ -1,9 +1,11 @@
-# Plan de desarrollo — v1.0 temprana (4 días)
+# Plan de desarrollo — v1.3 (4 días)
 
 **Proyecto:** Prueba_JuegoFrutas (Godot 4.6.3, GL Compatibility)
 **Objetivo del documento:** definir el alcance realista de una versión temprana jugable y agradable a la vista,
 por fases y con un máximo de 4 días de trabajo, usando como base lo que ya existe en el repositorio.
-**Estado:** documento de planificación. No se implementa nada todavía.
+**Estado:** implementación en curso desde el 12/11/2026. La v1.3 (13/11/2026) actualiza el estado del juego:
+el HUD muestra puntos, tiempo transcurrido, combo y vidas; aparecen frutas y bombas; las bombas quitan una vida
+y rompen la racha, y cada 10 frutas seguidas se recupera una vida si falta alguna.
 
 ---
 
@@ -31,41 +33,65 @@ La personalización **no entra completa** en estos 4 días, pero sí se deja pre
 
 | Archivo / nodo | Qué hace hoy | Estado |
 |---|---|---|
-| `project.godot` | Proyecto Godot 4.6, escena principal, autoload `Detector` | ✅ |
-| `Assets/Scene/Scene_1.tscn` | Escena de juego: jugador, plataforma, cámara, spawner, HUD de cámara | ✅ base |
-| `Assets/Character/character_body_2d.tscn` | Jugador `CharacterBody2D` + sprite placeholders + áreas laterales | ✅ base |
-| `Assets/Scripts/Mouse.gd` | Movimiento horizontal por UDP (izquierda/derecha/centro) + hover de mouse | ◐ |
-| `Fruits/Fruit.tscn` + `Fruits/fruits.gd` | Fruta genérica `Area2D`: se dibuja por código, cae, se autodestruye, detecta recogida | ✅ |
-| `Assets/Scripts/FruitSpawner.gd` | Spawn en X aleatoria arriba, presets de color/puntos/radio/velocidad, intervalo aleatorio | ✅ |
+| `project.godot` | Proyecto Godot 4.6, escena principal, autoloads `Detector` y `Game` | ✅ |
+| `Assets/Scene/Scene_1.tscn` | Escena de juego: personaje, plataforma, cámara, spawner, `Game_HUD` y `CameraHUD` | ✅ base |
+| `Assets/Character/character_body_2d.tscn` | Jugador `CharacterBody2D` con `AnimatedSprite2D` (idle 4 frames, walk 4) a `scale` 0.4; colisión 44×78 | ✅ base |
+| `Assets/Art/Fondo/Fondo_Arbol.PNG` | Fondo de juego 2304×1296 (×2), integrado como `Sprite2D` | ✅ |
+| `Assets/Scripts/Character.gd` | Movimiento horizontal por UDP + fallback de mouse; solo movimiento, sin vidas | ✅ |
+| `Assets/Scripts/Game.gd` | Estado de la partida que se refleja en puntos, vidas, tiempo y combo | ✅ |
+| `Assets/Scene/Game_HUD.tscn` + `Game_HUD.gd` | HUD arriba a la izquierda: puntos, tiempo transcurrido, combo y 3 corazones placeholder; panel 260×124 | ✅ base |
+| `Fruits/Fruit.tscn` + `Fruits/fruits.gd` | Fruta circular dibujada por código; cae, se recoge por contacto y suma puntos y combo | ✅ |
+| `Bomb/Bomb.tscn` + `Bomb/bomb.gd` | Peligro circular dibujado por código; cae y quita una vida al tocar al jugador | ✅ base |
+| `Assets/Scripts/FruitSpawner.gd` | Genera frutas y bombas en posiciones aleatorias; el intervalo y la probabilidad de bomba son fijos | ✅ base |
 | `Assets/Scene/fruit_spawner.tscn` | Nodo spawner con `Timer` | ✅ |
 | `Assets/python/detector.py` | MediaPipe: detecta mano, envía control (4242) y video JPEG + metadatos (4243) | ✅ |
 | `Assets/Scripts/PythonBridge.gd` | Autoload que lanza y cierra `detector.py` con el juego | ✅ |
-| `Assets/Scene/CameraHUD.tscn` + `CameraHUD.gd` | Ventana inferior central con la vista de cámara, estado y variables | ✅ |
-| `Assets/Character/l_side.tscn`, `r_side.tscn` | Áreas auxiliares de hover (legado del control por mouse) | ◐ reutilizable |
+| `Assets/Scene/CameraHUD.tscn` + `CameraHUD.gd` | Ventana de cámara abajo al centro: 300×218, video 284×150, estado y variables | ✅ |
+| `Assets/Character/l_side.tscn`, `r_side.tscn` | Áreas auxiliares de hover (legado del control por mouse) | ◐ legado |
 | `Assets/python/hand_landmarker.task` | Modelo de MediaPipe | ✅ |
-| Arte, audio, música | No existe (todo es `icon.svg` y formas dibujadas) | ❌ |
+| Arte, audio, música | Fondo y personaje con idle/walk; frutas y bombas dibujadas con formas; sin audio | ◐ |
 
 ### 2.2 Capacidades del juego
 
 | Capacidad | Estado | Nota |
 |---|---|---|
-| Ventana con escena principal | ✅ | 1152×648 por defecto, cámara centrada en el origen |
+| Ventana con escena principal | ✅ | 1152×648; cámara 2D centrada en el origen |
 | Cámara + detección de mano | ✅ | Funciona y ya se probó de punta a punta |
 | Envío de video al juego | ✅ | 320 px de ancho, ~20 fps, JPEG por UDP |
-| Generación aleatoria de frutas | ✅ | 5 tipos por preset, velocidades variables |
-| Recolección por contacto | ✅ | Emite señal y busca un HUD (que aún no existe) |
-| Movimiento con la mano | ✅ | Ya sigue la posicion real de la mano sujeta al margen |
-| Puntaje | ✅  | Ya suman las frutas puntuacion entre 10 -> 15 -> 30, se implemento el HUD |
-| Vidas (3) | ❌ | No implementadas |
-| Objetos peligrosos | ❌ | No existen |
-| Combo / reponer vida | ❌ | No existe |
+| Generación de objetos | ✅ base | Frutas con 5 variantes de color/puntos y bombas; probabilidad de bomba fija en 10 % |
+| Recolección por contacto | ✅ | La fruta llama a `Game.add_score()`; ya no busca un HUD por grupo |
+| Movimiento con la mano | ✅ | Sigue la posición real de la mano, con suavizado y límites de cámara |
+| Puntaje | ✅ | Se ve en el HUD, arriba a la izquierda (panel 260×124) |
+| Vidas (3) | ✅ | Una bomba resta una vida; máximo 3; 10 frutas seguidas recuperan una si falta alguna |
+| HUD de juego | ✅ base | Puntos + tiempo transcurrido + combo + 3 corazones placeholder de 28×28, sin arte final |
+| HUD de cámara | ✅ | Panel 300×218 abajo al centro, video 284×150, estado y variables |
+| Tiempo visible | ✅ base | Cuenta hacia arriba en MM:SS; no hay límite de 90 s ni fin automático |
+| Objetos peligrosos | ✅ base | Las bombas aparecen con probabilidad fija y quitan una vida al tocar al jugador |
+| Combo / reponer vida | ✅ base | El HUD muestra la racha; una bomba la reinicia; cada 10 frutas se reinicia el contador y se recupera una vida si falta alguna |
 | Dificultad dinámica | ❌ | Intervalo y velocidad son fijos |
+| Personaje animado | ✅ base | `AnimatedSprite2D`: idle 4 frames y walk 4; cambia solo al moverse |
+| Fondo con arte | ✅ base | `Fondo_Arbol.PNG` 2304×1296; la escala actual deja 12 px sin cubrir |
+| Arte de frutas y bombas | ◐ | Ambos objetos siguen dibujados por código |
 | Menú, pausa, fin de partida | ❌ | La escena arranca directo |
-| Fondo y piso con arte | ❌ | Solo un sprite placeholder y una plataforma |
 | Sonido / música | ❌ | Sin nodos de audio |
-| Animaciones | ❌ | Sin `AnimationPlayer` ni `Tween` |
+| Animaciones | ◐ base | idle y walk; faltan pop de fruta, daño y festejo |
 | Personalización / guardado | ❌ | No hay persistencia |
-| Fallback sin cámara (mouse/teclado) | ❌ | Riesgo alto para demos |
+| Fallback sin cámara (mouse/teclado) | ✅ | Integrado en `Character.gd`; funciona |
+
+### 2.3 Bitácora de avances
+
+| Fecha | Avance | Estado |
+|---|---|---|
+| 12/11 | Movimiento continuo por mano + fallback de mouse; spawner con 5 frutas; `Game` con puntaje | ✅ |
+| 12/11 | HUD con puntos y 3 corazones por señales (HUD de cámara ya existía) | ✅ |
+| 13/11 | Fondo `Fondo_Arbol.PNG` y personaje idle/walk integrados; colisión 44×78 | ✅ |
+| 13/11 | `CameraHUD` reducido a 300×218 para no tapar tanto al personaje | ✅ |
+| 13/11 | Tiempo transcurrido y combo visibles en el HUD; combo reinicia al tocar una bomba | ✅ base |
+| 13/11 | Bombas circulares aparecen junto con las frutas; al tocarlas restan una vida | ✅ base |
+| 13/11 | Cada 10 frutas seguidas recupera una vida cuando falta alguna | ✅ base |
+| Próximo | Feedback visual/sonoro al recibir daño e invulnerabilidad temporal | ⏳ |
+| Después | Límite de partida, fin al perder todas las vidas y pantalla de resultado | ⏳ |
+| Después | Dificultad dinámica; ahora los intervalos y la probabilidad de bomba son fijos | ⏳ |
 
 ---
 
@@ -92,7 +118,8 @@ El jugador será un **personaje** que se desplaza horizontalmente, no una canast
   (4 frames) + daño (1) + festejo (2)**, resueltos con `Sprite2D`/`AnimatedSprite2D`.
 - Ciclo de caminata completo, salto y transiciones quedan **fuera de la v1** (backlog).
 - La personalización futura pasa a ser **skins de personaje** (igual de simple que con canasta).
-- El sprite actual es un placeholder (`icon.svg` escalado): se reemplaza sin tocar la lógica de movimiento.
+- El personaje ya usa arte propio: `AnimatedSprite2D` con idle (4 frames) y walk (4 frames). Faltan daño y
+  festejo, que se agregan sin tocar la lógica de movimiento.
 
 Los tamaños y formatos exactos están en la **sección 11 (Especificación de assets)**.
 
@@ -102,9 +129,9 @@ Los tamaños y formatos exactos están en la **sección 11 (Especificación de a
 |---|---|---|
 | Vidas | 3, máximo 3 | Pedido del equipo; pocas para sesiones cortas |
 | Daño | Solo los objetos peligrosos quitan vida | Castigar frutas perdidas es muy punitivo en rehabilitación |
-| Fruta perdida | Rompe la racha, no quita vida | Mantiene la tensión sin castigar el error motriz |
+| Fruta perdida | No quita vida ni rompe la racha; tocar una bomba sí la rompe | Mantiene la tensión sin castigar el error motriz |
 | Invulnerabilidad | 1.5 s tras recibir daño | Evita perder las 3 vidas por un solo choque |
-| Combo | 10 frutas seguidas sin daño → +1 vida (si hay menos de 3) | Da una meta clara y recuperación |
+| Combo | 10 frutas seguidas sin tocar una bomba → +1 vida (si hay menos de 3) | La racha vuelve a cero al llegar a 10 o tocar una bomba |
 | Puntaje | 10/15/20/25/30 según fruta + bonus por racha | Valores ya definidos en los presets |
 | Monedas | 1 moneda por cada 100 puntos | Economía simple para personalización |
 | Fin de partida | Se acaba el tiempo o se llega a 0 vidas | Dos formas de terminar, ambas con resultado |
@@ -290,7 +317,7 @@ intervención técnica y sin errores visibles.
 | Autoload | Responsabilidad |
 |---|---|
 | `Detector` | Ya existe: lanza y cierra `detector.py` |
-| `Game` | Estado de partida, puntaje, vidas, racha, señales (`score_changed`, `life_lost`, `game_over`) |
+| `Game` | Estado de partida, puntaje, vidas, tiempo jugado, racha, señales (`score_changed`, `lives_changed`, `time_changed`, `game_over`) |
 | `Datos` | Lectura/escritura de `user://perfil.cfg` (mejor puntaje, monedas, ajustes, skins) |
 | `Audio` | Reproducción de SFX y música, volumen por bus |
 
@@ -303,10 +330,10 @@ Game.tscn            → la actual Scene_1, renombrada y ordenada
   FruitSpawner
   DifficultyDirector
   Fondo / Piso
-  UI/HUD.tscn        → puntos, vidas, tiempo, racha
-  UI/CameraHUD.tscn  → vista de cámara (ya existe)
-  UI/Pausa.tscn
-  UI/Resultado.tscn
+  Scene/Game_HUD.tscn  → puntos + tiempo + 3 vidas (ya existe, 260×124)
+  Scene/CameraHUD.tscn → vista de cámara (ya existe, 300×218)
+  Scene/Pausa.tscn     → overlay (pendiente)
+  Scene/Resultado.tscn → overlay (pendiente)
 Tienda.tscn          → opcional día 4
 ```
 
@@ -320,14 +347,20 @@ Tienda.tscn          → opcional día 4
 El control debe ir **separado del video**: si el video se baja a 10 fps para ahorrar CPU, el movimiento
 no debe perder fluidez.
 
-### 6.4 Layout: conflicto a resolver
+### 6.4 Layout: estado y conflicto pendiente
 
-El `CameraHUD` actual mide **380×266** y está anclado abajo al centro; la zona de captura (personaje y piso)
-también está abajo al centro. Si no se ajusta, **el panel tapa al jugador**.
+El `CameraHUD` mide hoy **300×218** (video 284×150), anclado abajo al centro y a 16 px del borde inferior.
+El HUD de puntos, tiempo y vidas mide **260×124** y está arriba a la izquierda, así que no compite con la cámara.
 
-Propuesta: reducir el panel a ~**300×200** (video ~284×132) y subir la línea de piso a la altura de la
-mitad inferior, dejando el espacio del panel libre. Alternativa: mantener el tamaño y permitir ocultarlo
-con **F1** (útil de todos modos para partidas grabadas o para el terapeuta).
+El conflicto original (el panel tapaba al jugador) quedó **reducido, no resuelto**: el panel bajó de 380×266 a
+300×218, pero el personaje sigue pasando por el centro. Quedan dos ajustes:
+
+1. Subir la línea de piso o limitar el recorrido del personaje para que no entre en la franja del panel.
+2. Poder ocultar la cámara con **F1** (útil también para partidas grabadas o para el terapeuta).
+
+Con cámara 4:3 (320×240) el video se muestra centrado y sin deformarse: el área visible real es **200×150** y
+quedan franjas laterales; con 16:9 (320×180) el área visible es **266×150**. El marco del panel se dibuja para
+300×218 (exportado ×2: 600×436), con márgenes de 24 px para 9-slice.
 
 ### 6.5 Capas de colisión sugeridas
 
@@ -383,6 +416,10 @@ Evita tener que corregir máscaras a mitad de semana.
 ### 8.2 Checklist visual y de rendimiento
 
 - [ ] HUD legible a 1280×720 y 1920×1080.
+- [ ] Los HUD respetan las medidas: puntos/tiempo/vidas **260×124** y cámara **300×218**, sin recortes.
+- [ ] Los corazones se ven a **28×28** y el arte final puede reemplazar los `ColorRect` sin tocar el script.
+- [ ] El fondo cubre 1152×648 exactos (hoy 1154×636: faltan 12 px de alto).
+- [ ] El personaje se ve a **76,8×102,4** y su colisión (44×78) coincide con el dibujo.
 - [ ] El panel de cámara no tapa al jugador ni las frutas.
 - [ ] 60 fps estables en el equipo objetivo (medido con el monitor de depuración).
 - [ ] Sin textos de depuración (`print`) en la versión final.
@@ -470,13 +507,16 @@ Documentacion/
   "px de pantalla" a esa resolución.
 - **Exportar al doble (×2):** cubre 1920×1080 y ventanas maximizadas sin pixelarse. Si algún día se apunta
   a 4K, exportar ×3.
-- **`Sprite2D.scale` siempre en (1, 1):** el tamaño se define en el archivo, nunca escalando el nodo.
-  (Hoy el placeholder usa `scale = 0.40625`; al reemplazarlo hay que volver a 1.)
+- **Escala del personaje:** el arte se exporta a 192×256 (×2 de 96×128) y se muestra con
+  `AnimatedSprite2D.scale = 0.4` → **76,8×102,4 px** en pantalla. Es 2,5× de densidad, así que no se ve
+  borroso. Si en el futuro se exporta al tamaño exacto de pantalla, usar `scale = (1, 1)`.
 - **Filtro de textura:** `Linear`. En hojas de sprites, **mipmaps desactivados** para que no se mezclen
   frames vecinos. Solo si algún día se pasa a pixel art: `Nearest` + escala entera y todo el juego a 320×180.
 - **Formato:** PNG con transparencia para personaje, frutas y UI; WebP/JPEG de calidad alta para fondos.
 - **Pivote del personaje:** pies, centro-abajo. Todos los frames de una animación con el **mismo tamaño de
   lienzo**, aunque el dibujo no lo llene.
+- **HUD ya construido (medidas reales):** panel de puntos, tiempo y vidas **260×124** arriba a la izquierda, y panel
+  de cámara **300×218** abajo al centro (video 284×150). El arte de marcos debe respetar esas medidas.
 - **Recomendado en `project.godot`:** `display/window/stretch/mode = canvas_items` y
   `aspect = expand`, para que la ventana escale el lienzo completo en vez de mostrar más mundo.
 
@@ -484,14 +524,15 @@ Documentacion/
 
 | Asset | Tamaño en pantalla (base 1152×648) | Exportar | Formato | Notas |
 |---|---|---|---|---|
-| **Personaje** (hoja de sprites) | Frame **96 × 128** | **192 × 256** | PNG alfa | Cuerpo de ~64–72 × 96–110 dentro del lienzo; margen para brazos y saltos |
-| Personaje — frames | idle 2–4, desplazamiento 4, daño 1, festejo 2 | igual | PNG alfa | Todos con el mismo lienzo de 96×128; pivote en los pies |
+| **Personaje** (hoja de sprites) | Frame **77 × 102** (192×256 a `scale` 0.4) | **192 × 256** | PNG alfa | Cuerpo de ~64–72 × 96–110 dentro del lienzo; margen para brazos y saltos |
+| Personaje — frames | idle 4 (4 fps), walk 4 (6 fps); faltan daño y festejo | igual | PNG alfa | Todos con el mismo lienzo de 192×256; pivote en los pies |
 | **Fruta** (cada tipo) | 36–60 (2 × radio del preset) | **128 × 128** todas | PNG alfa | Un lienzo común de 128 y escalar por preset, o exportar cada una a 2× de su diámetro |
 | **Peligro** (bomba) | 56–64 | **128 × 128** | PNG alfa | Silueta inconfundible; si tiene mecha animada, hoja de 4 frames |
-| **Corazón / vida** | 24 × 24 | **48 × 48** | PNG alfa o SVG | 3 estados: lleno, vacío, ganado |
+| **Corazón / vida** | 28 × 28 | **56 × 56** | PNG alfa o SVG | 3 estados: lleno, vacío, ganado; hoy son `ColorRect` 28×28 tintados con `modulate` |
 | **Moneda** | 24 × 24 | **48 × 48** | PNG alfa o SVG | — |
 | **Iconos de UI** (pausa, sonido, casa) | 24 × 24 | **48 × 48** | SVG preferido | Godot rasteriza el SVG al importar |
-| **Marco del panel de cámara** | 300 × 200 | **600 × 400** | PNG con 9-slice | Márgenes de 24 px para estirar sin deformar |
+| **Marco del panel de cámara** | 300 × 218 | **600 × 436** | PNG con 9-slice | Márgenes de 24 px; el video interno mide 284×150 y se centra sin deformarse |
+| **Panel de puntos, tiempo y vidas (HUD)** | 260 × 124 | **520 × 248** | PNG con 9-slice | Fondo + marco; los textos van en `Label`, nunca en la imagen |
 | **Fondo de juego** | 1152 × 648 | **2304 × 1296** | WebP/PNG | Sin texto; zona importante en el centro 1152×648; prever recorte lateral |
 | **Piso / plataforma** | 1152 × 160 | **2304 × 320** | PNG | Repetible horizontalmente; sin sombra "horneada" que delate el tile |
 | **Fondo de menú** | 1152 × 648 | **2304 × 1296** | WebP | — |
@@ -510,6 +551,8 @@ Art/Fondos/fondo_huerto.webp
 Art/Fondos/piso_madera.png
 Art/UI/ui_corazon_lleno.png
 Art/UI/ui_moneda.png
+Art/UI/ui_panel_hud.png
+Art/UI/ui_marco_camara.png
 ```
 
 Todo en minúsculas, sin espacios ni acentos (evita problemas en export y en Git).
@@ -530,9 +573,31 @@ Todo en minúsculas, sin espacios ni acentos (evita problemas en export y en Git
 
 | Prioridad | Assets |
 |---|---|
-| **Obligatorio** | Personaje (idle + desplazamiento), 5 frutas, 1 peligro, fondo + piso, corazón, moneda, marco del panel |
+| **Obligatorio** | Personaje (idle + desplazamiento), 5 frutas, 1 peligro, fondo + piso, corazón, moneda, marcos de HUD (puntos/tiempo 260×124 y cámara 300×218) |
 | **Deseable** | Iconos de UI, fondo de menú, logo, 2 frames de daño/festejo |
 | **Post-v1** | Caminata completa, salto, skins, partículas ilustradas, escenarios alternativos |
 
 Si el arte no llega a tiempo, se mantiene el estilo procedural actual (formas + paleta) y se reemplaza
 después: la lógica no depende de los archivos, solo del tamaño y del pivote.
+
+### 11.6 Estado real de los assets (13/11/2026)
+
+| Asset | Archivo | Fuente | En el juego | Estado |
+|---|---|---|---|---|
+| Fondo | `Art/Fondo/Fondo_Arbol.PNG` | 2304×1296 | `Sprite2D` scale 0.500868×0.490741 → 1154×636 | ✅ integrado |
+| Personaje idle | `Art/Personaje/idle/Idle1–4.PNG` | 192×256 c/u | `AnimatedSprite2D` scale 0.4 → 76,8×102,4; 4 fps | ✅ integrado |
+| Personaje walk | `Art/Personaje/walk/walk1–4.png` | 192×256 c/u | misma animación; 6 fps | ✅ integrado |
+| Colisión del personaje | `character_body_2d.tscn` | — | `RectangleShape2D` 44×78 (y = 8) | ✅ ajustada |
+| Frutas | `Fruits/fruits.gd` | procedural | radio 18–30 px | ◐ placeholder |
+| Bomba | `Bomb/Bomb.tscn` + `Bomb/bomb.gd` | Procedural | Círculo con borde y brillo; cae y quita una vida al tocar al jugador | ◐ funcional, aspecto provisional |
+| Corazones | `Game_HUD.tscn` | `ColorRect` 28×28 | tintados con `modulate` | ◐ placeholder |
+| Panel de puntos, tiempo, combo y vidas | `Game_HUD.tscn` | 260×124 | `PanelContainer` fijo; puntos, tiempo en MM:SS, combo y corazones | ✅ base |
+| Panel de cámara | `CameraHUD.tscn` | 300×218 | video 284×150 | ✅ |
+| Audio | — | — | — | ❌ falta |
+
+**Pendientes visuales del estado actual:**
+
+1. **Fondo:** la escala actual (0.500868 × 0.490741) da 1154×636, así que faltan 12 px de alto. Lo correcto es
+   `scale = (0.5, 0.5)` → 1152×648 exactos.
+2. **Bomba:** se representa con un círculo y brillo, sin mecha ni animación; conviene darle una silueta más fácil
+   de distinguir de una fruta.

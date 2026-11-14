@@ -13,7 +13,6 @@ config_version=5
 config/name="Prueba_JuegoFrutas"
 run/main_scene="uid://vfa242hxta8s"
 config/features=PackedStringArray("4.6", "GL Compatibility")
-config/icon="res://icon.svg"
 
 [autoload]
 

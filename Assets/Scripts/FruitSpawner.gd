@@ -2,11 +2,13 @@ extends Node2D
 ## Genera frutas en una X aleatoria por encima de la pantalla y las deja caer.
 
 ## Escena de fruta a instanciar.
-@export var fruit_scene: PackedScene = preload("res://Fruits/Fruit.tscn")
+@export var fruit_scene: PackedScene = preload("res://Fruits/fruit.tscn")
+@export var bomb_scene: PackedScene = preload("res://Bomb/Bomb.tscn")
 
 ## Una entrada por tipo de fruta. Si lo dejas vacío se usan los presets de abajo.
 ## Claves: "color" (Color), "points" (int), "radius" (float), "speed" (float).
 @export var fruit_presets: Array[Dictionary] = []
+@export var bomb_presets: Array[Dictionary] = []
 
 ## Margen horizontal respecto a los bordes de la pantalla.
 @export_range(0.0, 2000.0) var side_margin: float = 48.0
@@ -23,6 +25,7 @@ extends Node2D
 
 var _timer: Timer
 var _container: Node
+var prob_bomb: float = 0.1
 
 
 func _ready() -> void:
@@ -40,7 +43,12 @@ func _ready() -> void:
 
 
 func _on_timer_timeout() -> void:
-	spawn_fruit()
+	
+	if randf() < prob_bomb:
+		spawn_bomb()
+	else:
+		spawn_fruit()
+	
 	_schedule_next()
 
 
@@ -57,6 +65,34 @@ func get_play_rect() -> Rect2:
 		rect = Rect2(camera.get_screen_center_position() - size * 0.5, size)
 	return rect
 
+
+func spawn_bomb() -> Node2D:
+	if bomb_scene == null:
+		push_warning("FruitSpawner: falta asignar bomb_scene.")
+		return null
+
+	var preset: Dictionary = _pick_preset_bomb()
+	var bomb := bomb_scene.instantiate()
+	var rect := get_play_rect()
+	var radius: float = float(preset.get("radius", 24.0))
+
+	# Rango horizontal válido, evitando que la fruta nazca cortada por un borde.
+	var left := rect.position.x + side_margin + radius
+	var right := rect.end.x - side_margin - radius
+	if right < left:
+		right = left
+
+	bomb.bomb_color = preset.get("color", Color.WEB_GRAY)
+	bomb.daño = int(preset.get("daño", 10))
+	bomb.radius = radius
+	bomb.fall_speed = float(preset.get("speed", 180.0)) * randf_range(0.9, 1.1)
+
+	# X aleatoria, nace justo arriba del borde superior visible.
+	bomb.position = Vector2(randf_range(left, right), rect.position.y - spawn_offset_y - radius)
+	bomb.despawn_y = rect.end.y + radius * 2.0
+
+	_container.add_child(bomb)
+	return bomb
 
 func spawn_fruit() -> Node2D:
 	if fruit_scene == null:
@@ -78,6 +114,7 @@ func spawn_fruit() -> Node2D:
 	fruit.points = int(preset.get("points", 10))
 	fruit.radius = radius
 	fruit.fall_speed = float(preset.get("speed", 180.0)) * randf_range(0.9, 1.1)
+	fruit.fruta_recolectada = 1
 
 	# X aleatoria, nace justo arriba del borde superior visible.
 	fruit.position = Vector2(randf_range(left, right), rect.position.y - spawn_offset_y - radius)
@@ -90,6 +127,10 @@ func spawn_fruit() -> Node2D:
 func _pick_preset() -> Dictionary:
 	var list: Array = fruit_presets if not fruit_presets.is_empty() else _default_presets()
 	return list.pick_random()
+	
+func _pick_preset_bomb() -> Dictionary:
+	var list: Array = bomb_presets if not bomb_presets.is_empty() else _default_presets_bomb()
+	return list.pick_random()
 
 
 func _default_presets() -> Array[Dictionary]:
@@ -100,3 +141,11 @@ func _default_presets() -> Array[Dictionary]:
 		{"name": "uva", "color": Color("8e44ad"), "points": 25, "radius": 18.0, "speed": 240.0},
 		{"name": "sandia", "color": Color("2eb872"), "points": 30, "radius": 30.0, "speed": 130.0},
 	]
+func _default_presets_bomb() -> Array[Dictionary]:
+	return [
+		{"name": "manzana", "color": Color("e63946"), "points": 10, "radius": 24.0, "speed": 170.0},
+		{"name": "naranja", "color": Color("767d85ff"), "points": 15, "radius": 26.0, "speed": 150.0},
+	]
+
+func dificultad() -> void:
+	pass
