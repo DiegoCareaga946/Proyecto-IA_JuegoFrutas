@@ -8,5 +8,7 @@
 script = ExtResource("1_vlo8u")
 bomb_color = Color(0.38665447, 0.39707172, 0.41293192, 1)
 
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1984987276]
 shape = SubResource("CircleShape2D_75bcl")

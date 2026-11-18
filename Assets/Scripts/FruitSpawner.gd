@@ -1,7 +1,12 @@
 extends Node2D
 ## Genera frutas en una X aleatoria por encima de la pantalla y las deja caer.
 
-var NARANJA: Texture2D = load("res://Assets/Art/Fruit/Naranja.png")
+const TEX_BROCOLI: Texture2D = preload("res://Assets/Art/Fruit/Brócoli .png")
+const TEX_CEREZA: Texture2D = preload("res://Assets/Art/Fruit/Cereza.png")
+const TEX_NARANJA: Texture2D = preload("res://Assets/Art/Fruit/Naranja.png")
+const TEX_ONIGIRI: Texture2D = preload("res://Assets/Art/Fruit/Onigiri.png")
+const TEX_SUSHI: Texture2D = preload("res://Assets/Art/Fruit/Sushi.png")
+const TEX_PEPINILLO: Texture2D = preload("res://Assets/Art/Fruit/Pepinillo.png")
 
 ## Escena de fruta a instanciar.
 @export var fruit_scene: PackedScene = preload("res://Fruits/fruit.tscn")
@@ -27,7 +32,7 @@ var NARANJA: Texture2D = load("res://Assets/Art/Fruit/Naranja.png")
 
 var _timer: Timer
 var _container: Node
-var prob_bomb: float = 0.0
+var prob_bomb: float = 0.2
 
 
 func _ready() -> void:
@@ -87,6 +92,7 @@ func spawn_bomb() -> Node2D:
 		right = left
 
 	bomb.bomb_color = preset.get("color", Color.WEB_GRAY)
+	bomb.bomb_texture = preset.get("texture", null)
 	bomb.daño = int(preset.get("daño", 10))
 	bomb.radius = radius
 	bomb.fall_speed = float(preset.get("speed", 180.0)) * randf_range(0.9, 1.1)
@@ -115,6 +121,7 @@ func spawn_fruit() -> Node2D:
 		right = left
 
 	fruit.fruit_color = preset.get("color", Color.RED)
+	fruit.fruit_texture = preset.get("texture", null)
 	fruit.points = int(preset.get("points", 10))
 	fruit.radius = radius
 	fruit.fall_speed = float(preset.get("speed", 180.0)) * randf_range(0.9, 1.1)
@@ -139,16 +146,17 @@ func _pick_preset_bomb() -> Dictionary:
 
 func _default_presets() -> Array[Dictionary]:
 	return [
-		{"name": "manzana", "color": Color("e63946"), "points": 10, "radius": 24.0, "speed": 170.0},
-		{"name": "naranja", "color": Color("f4a300"), "points": 15, "Image": NARANJA, "speed": 150.0},
-		{"name": "limon", "color": Color("f7e02e"), "points": 20, "radius": 20.0, "speed": 220.0},
-		{"name": "uva", "color": Color("8e44ad"), "points": 25, "radius": 18.0, "speed": 240.0},
-		{"name": "sandia", "color": Color("2eb872"), "points": 30, "radius": 30.0, "speed": 130.0},
+		{"name": "cereza", "color": Color("e63946"), "texture": TEX_CEREZA, "points": 10, "radius": 24.0, "speed": 200.0},
+		{"name": "naranja", "color": Color("f4a300"), "texture": TEX_NARANJA, "points": 15, "radius": 28.0, "speed": 150.0},
+		{"name": "onigiri", "color": Color("f5f5f5"), "texture": TEX_ONIGIRI, "points": 20, "radius": 28.0, "speed": 160.0},
+		{"name": "sushi", "color": Color("767d85ff"), "texture": TEX_SUSHI, "points": 25, "radius": 28.0, "speed": 180.0},
 	]
+
+
 func _default_presets_bomb() -> Array[Dictionary]:
 	return [
-		{"name": "manzana", "color": Color("e63946"), "points": 10, "radius": 24.0, "speed": 170.0},
-		{"name": "naranja", "color": Color("767d85ff"), "points": 15, "radius": 26.0, "speed": 150.0},
+		{"name": "pepinillo", "color": Color("6b8e23"), "texture": TEX_PEPINILLO, "radius": 30.0, "speed": 150.0},
+		{"name": "brocoli", "color": Color("2eb872"), "texture": TEX_BROCOLI, "radius": 28.0, "speed": 170.0},
 	]
 
 func dificultad() -> void:

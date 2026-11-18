@@ -1,7 +1,6 @@
 @tool
 extends Area2D
-## Fruta genérica. Se dibuja con formas (sin texturas) y cae hacia abajo.
-## Para usar arte propio: agrega un Sprite2D como hijo y borra _draw().
+## Fruta recolectable: usa fruit_texture si está asignada; si no, dibuja un círculo.
 
 signal collected(points: int)
 signal combo(fruta_recolectada: int)
@@ -11,10 +10,15 @@ signal combo(fruta_recolectada: int)
 		fruit_color = value
 		queue_redraw()
 
-@export var radius: float = 24.0:
+@export var fruit_texture: Texture2D:
+	set(value):
+		fruit_texture = value
+		_aplicar_textura()
+
+@export var radius: float = 28.0:
 	set(value):
 		radius = value
-		queue_redraw()
+		_aplicar_textura()
 
 @export var points: int = 10
 @export var fall_speed: float = 180.0
@@ -29,6 +33,7 @@ var despawn_y: float = INF
 
 
 func _ready() -> void:
+	_aplicar_textura()
 	if Engine.is_editor_hint():
 		queue_redraw()
 		return
@@ -69,8 +74,25 @@ func _camera_bottom() -> float:
 	return camera.get_screen_center_position().y + get_viewport_rect().size.y / camera.zoom.y * 0.5
 
 
+## Ajusta el Sprite2D a la textura elegida y al radio de la colisión.
+func _aplicar_textura() -> void:
+	var sprite := get_node_or_null("Sprite2D") as Sprite2D
+	if sprite != null:
+		sprite.texture = fruit_texture
+		if fruit_texture != null:
+			var lado := maxf(fruit_texture.get_width(), fruit_texture.get_height())
+			sprite.scale = (Vector2.ONE * (radius * 2.0 / lado)) if lado > 0.0 else Vector2.ONE
+		else:
+			sprite.scale = Vector2.ONE
+	if is_inside_tree():
+		queue_redraw()
+
+
 func _draw() -> void:
-	# Cuerpo
+	if fruit_texture != null:
+		return
+
+	# Cuerpo (sin textura asignada)
 	draw_circle(Vector2.ZERO, radius, fruit_color)
 	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 32, fruit_color.darkened(0.35), 3.0, true)
 

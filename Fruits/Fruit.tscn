@@ -8,5 +8,7 @@ radius = 22.0
 [node name="Area2D" type="Area2D" unique_id=700537276]
 script = ExtResource("1_ptcsm")
 
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=362490442]
 shape = SubResource("CircleShape2D_jm2bi")
